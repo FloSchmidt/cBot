@@ -48,14 +48,20 @@ void updateDisplay() {
 	else sprintf(rangeTextMiddle, "---");
 	if ( rangeRight <= MAX_RANGE ) sprintf(rangeTextRight, "%3d", rangeRight);
 	else sprintf(rangeTextRight, "---");
-	sprintf(text, "%s|%s|%s", rangeTextLeft, rangeTextMiddle, rangeTextRight);
+
+	sprintf(text, "Flo3 @ Hackwerk", rangeTextLeft, rangeTextMiddle, rangeTextRight);
+	//sprintf(text, "%s|%s|%s", rangeTextLeft, rangeTextMiddle, rangeTextRight);
+	char t[10] = "Flo3"
 
 	// update display
 	u8g2_ClearBuffer(display);
 	u8g2_SetDrawColor(display, 1);
 	u8g2_SetFont(display, u8g2_font_t0_22b_mr);
 	u8g2_DrawStr(display, (128 - u8g2_GetStrWidth(display, text))/2, 63, text);
+	u8g2_DrawStr(display, 0, 30, t))
 	u8g2_SendBuffer(display);
+
+
 
 }
 

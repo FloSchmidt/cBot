@@ -512,8 +512,7 @@ void driveArc(float radius, float angle) {
 }
 
 int isMoving() {
-	if ( (motorStatus.firstMotorRpm != NULL) || (motorIncrementL != 0) || (motorIncrementR != 0) ) return 1;
-	else return 0;
+	return (motorStatus.firstMotorRpm != NULL) || (motorIncrementL != 0) || (motorIncrementR != 0);
 }
 
 void motorUpdate() {
@@ -707,6 +706,8 @@ void cBot_init(void) {
 
 	// init servo
 	servo_init();
+
+	motorInit();
 
 	// init serial communication
 	//	HAL_Delay(300);
