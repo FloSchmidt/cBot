@@ -35,6 +35,7 @@ typedef struct {
 	uint32_t channel;
 } ws2812b_t;
 
+#define CONSTEXPR_COLOR(R, G, B) (uint32_t)G << 16 | (uint32_t)R << 8 | (uint32_t)B
 
 void ws2812b_init(ws2812b_t *ws2812b, uint16_t size, TIM_HandleTypeDef *htim, uint32_t channel);
 void ws2812b_deInit(ws2812b_t *ws2812b);

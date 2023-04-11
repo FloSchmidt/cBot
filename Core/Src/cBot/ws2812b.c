@@ -48,7 +48,7 @@ void ws2812b_clear(ws2812b_t *ws2812b) {
 }
 
 uint32_t ws2812b_colorRGB(uint8_t r, uint8_t g, uint8_t b) {
-	return (uint32_t)g << 16 | (uint32_t)r << 8 | (uint32_t)b;
+	return CONSTEXPR_COLOR(r, g, b);
 }
 
 uint32_t ws2812b_colorHSV(uint16_t h, uint8_t s, uint8_t v) {

@@ -28,6 +28,7 @@
 #include "ws2812b.h"
 
 #include <stdio.h>
+#include <math.h>
 
 
 #define WALL_DISTANCE 90
@@ -37,6 +38,22 @@
 
 extern ws2812b_t *rgbLeds;
 extern buttonId buttonRight;
+
+float remap(float t, float from0, float from1, float to0, float to1)
+{
+	return (t - from0) / (to0 - from0) * (to1 - from1) + from1;
+}
+
+float clamp(float value, float min, float max)
+{
+	if (value < min)
+		return min;
+	if (value > max)
+		return max;
+	return value;
+}
+
+
 
 void updateDisplay() {
 	// read range values
@@ -84,15 +101,30 @@ void setLightSensorColor(uint32_t color)
 	ws2812b_update(rgbLeds);
 }
 
+void cycleLightSensorColor()
+{
+	static int currentColorIndex = 0;
+	static const uint32_t colors[] = {
+			CONSTEXPR_COLOR(0, 0, 0),
+			CONSTEXPR_COLOR(0, 0, 255),
+			CONSTEXPR_COLOR(0, 255, 0),
+			CONSTEXPR_COLOR(255, 0, 0),
+			CONSTEXPR_COLOR(255, 255, 255)
+	};
+	static const int colorsCount = 5;
+	setLightSensorColor(colors[currentColorIndex]);
+	//updateLeds();
+	currentColorIndex = (currentColorIndex + 1) % colorsCount;
+}
 
 void init() {
 	// initialize your cBot here
-	setLightSensorColor(ws2812b_colorRGB(0, 255, 255));
+	cycleLightSensorColor();
+	//setLightSensorColor(ws2812b_colorRGB(0, 255, 255));
 }
 
 
 #define ERROR_HISTORY_SIZE 100
-
 
 int running = 0;
 int lastTurnLeft = 0;
@@ -124,6 +156,10 @@ void loop() {
 //		setMotorRpm(0,0);
 //	}
 
+	if ( isPressed(BUTTON_LEFT) ) {
+		cycleLightSensorColor();
+		while ( isPressed(BUTTON_LEFT) );	// wait until key is released
+	}
 
 	if ( isPressed(BUTTON_RIGHT) ) {
 		running = !running;
@@ -137,19 +173,10 @@ void loop() {
 	{
 	    int diff = intensityL - intensityR;
 
-		if(diff < - 100)
-		{
-			setMotorRpm(0, 8);
-		}
+	    float speedRight = clamp(remap(diff, 100, 0, 16, 0), 0, 16);
+	    float speedLeft = clamp(remap(diff, -100, 0, 0, 16), 0, 16);
 
-		else if (diff > 100)
-		{
-			setMotorRpm(8, 0);
-		}
-		else
-		{
-			setMotorRpm(8, 8);
-		}
+	    setMotorRpm(speedLeft, speedRight);
 
 	}
 
