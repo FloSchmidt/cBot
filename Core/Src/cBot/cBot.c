@@ -23,6 +23,7 @@
 
 #include "button.h"
 #include "buzzer.h"
+#include "sercom.h"
 
 extern ADC_HandleTypeDef hadc1;
 extern I2C_HandleTypeDef hi2c1;
@@ -30,7 +31,6 @@ extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
-
 
 buttons_t buttons;
 button_t *buttonRight, *buttonDown, *buttonLeft, *buttonUp;
@@ -44,9 +44,9 @@ ws2812b_t *rgbLeds = &rgbLedObj;
 u8g2_t displayObj;
 u8g2_t *display = &displayObj;
 
-
-// TODO:
 // - serial interface
+sercom_t serialObj;
+sercom_t *serial = &serialObj;
 
 
 // ----- Buttons --------------------------------------------------------------
@@ -149,7 +149,6 @@ void setServo(uint8_t servoId, uint16_t position) {
 		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, compareValue);
 		break;
 	}
-
 }
 
 void servo_init() {
@@ -190,7 +189,6 @@ void rangeSensor_init() {
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	uint16_t timeStamp = __HAL_TIM_GET_COUNTER(&htim1);
 
-
 	for ( int sensorId = 0; sensorId < 3; sensorId++ ) {
 		if ( GPIO_Pin == rangeSensor[sensorId].echoPin ) {
 			if ( rangeSensor[sensorId].echoStartCoarse == 0 ) {
@@ -211,13 +209,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				else {
 					rangeSensor[sensorId].rangeMM = rangeMM;
 				}
-
 				//				HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 			}
-
 		}
 	}
-
 }
 
 int getRangeMm(sensorId id) {
@@ -287,8 +282,6 @@ float rpmMax = 22;
 float rpmStart = 2;
 uint8_t accellerationSteps = 10;
 float accellerationStepDuration = 0.020;
-
-
 
 motorStatus_t motorStatus;
 
@@ -428,7 +421,6 @@ void accelleratedMove(float rpmL, float rpmR, float duration) {
 		// dispose motor RPM object
 		free(motorRpm);
 	}
-
 }
 
 void driveStrait(float distance) {
@@ -552,9 +544,7 @@ void motorUpdate() {
 				motorIncrementR = 0;
 			}
 		}
-
 	}
-
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -710,17 +700,14 @@ void cBot_init(void) {
 	motorInit();
 
 	// init serial communication
-	//	HAL_Delay(300);
-	//	sercom_init(&hostCom, USART1, 64, 64);
-	//	sercom_transmitStr(&hostCom, "cBot v 0.1\n\r");
+	//HAL_Delay(300);
+	sercom_init(serial, USART1, 64, 64);
+	//sercom_transmitStr(&hostCom, "cBot v 0.1\n\r");
 
 	// init range sensors
 	rangeSensor_init();
 
 	// init motors
 	HAL_TIM_Base_Start_IT(&htim4);
-
-
-
 }
 

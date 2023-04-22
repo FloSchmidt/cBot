@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "button.h"
 #include "buzzer.h"
+#include "sercom.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -247,14 +248,17 @@ void TIM4_IRQHandler(void)
   /* USER CODE END TIM4_IRQn 1 */
 }
 
+
+extern sercom_t *serial;
 /**
   * @brief This function handles USART1 global interrupt.
   */
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-
+  sercom_irqHandler(serial);
   /* USER CODE END USART1_IRQn 0 */
+
   /* USER CODE BEGIN USART1_IRQn 1 */
 
   /* USER CODE END USART1_IRQn 1 */
