@@ -26,6 +26,7 @@
 #include "cBotApp.h"
 #include "cBot.h"
 #include "ws2812b.h"
+#include "sercom.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -38,6 +39,7 @@
 
 extern ws2812b_t *rgbLeds;
 extern buttonId buttonRight;
+extern sercom_t *serial;
 
 uint32_t blinkTimer = 0;
 
@@ -119,8 +121,29 @@ void cycleLightSensorColor()
 
 void init() {
 	// initialize your cBot here
+//	sercom_transmitStr(serial, "AT\r\n");
+//	while(serial->isTxActive);
+//	HAL_Delay(100);
+
+//	while(serial->isTxActive);
+//	HAL_Delay(500);
+//	char c[64] = {0};
+//	sercom_readLine(serial, c, 64);
+//
+// 	sercom_transmitStr(serial, "AT+CWMODE=2\r\n");
+// 	while(serial->isTxActive);
+// 	HAL_Delay(100);
+// 	while(serial->isTxActive);
+
+// 	while(sercom_bytesAvailable(serial) < 2);
+//
+
+//	sercom_readLine(serial, c, 64);
+
+//	c[5] = 10;
+
 	cycleLightSensorColor();
-	//setLightSensorColor(ws2812b_colorRGB(0, 255, 255));
+
 }
 
 
@@ -137,7 +160,7 @@ void resetErrorHistory() {
 }
 
 void loop() {
-	// read range values
+// read range values
 //	int rangeLeft = getRangeMm(SENSOR_LEFT);
 //	int rangeMiddle = getRangeMm(SENSOR_MIDDLE);
 //	int rangeRight = getRangeMm(SENSOR_RIGHT);
@@ -187,6 +210,22 @@ void loop() {
 		while ( isPressed(BUTTON_RIGHT) );	// wait until key is released
 	}
 
+	static int servoPos = 100;
+	if ( isPressed(BUTTON_UP) ) {
+		if (servoPos == 100)
+		{
+			servoPos = 900;
+		}
+		else
+		{
+			servoPos = 100;
+		}
+
+		setServo(1, servoPos);
+		while ( isPressed(BUTTON_UP) );	// wait until key is released
+	}
+
+
 	if (running)
 	{
 	    int diff = intensityL - intensityR;
@@ -196,6 +235,8 @@ void loop() {
 
 	    setMotorRpm(speedLeft, speedRight);
 	}
+
+
 
 
 //	if (running && !isMoving())
@@ -227,12 +268,6 @@ void loop() {
 //		getRpmFromVelocity(&rpmLeft, &rpmRight, 0.02, -angularSpeed); // linear velocity in m/s; angular rate in radians/s
 //		setMotorRpm(rpmLeft, rpmRight);
 
-
-
-//
-//
-//
-//
 //
 //		if ( (rangeLeft > MAX_RANGE) && (rangeMiddle > MAX_RANGE) && (rangeRight > MAX_RANGE) ) {
 //			driveArc((WALL_DISTANCE + OFFSET_SENSOR_LEFT) / 1000.0, 30); // radius in m, angle in degree

@@ -23,6 +23,7 @@
 
 #include "button.h"
 #include "buzzer.h"
+#include "sercom.h"
 
 extern ADC_HandleTypeDef hadc1;
 extern I2C_HandleTypeDef hi2c1;
@@ -58,6 +59,8 @@ uint8_t millistimer_expired(uint32_t *timer, uint16_t increment)
 	}
 	return 0;
 }
+sercom_t serialObj;
+sercom_t *serial = &serialObj;
 
 // ----- Buttons --------------------------------------------------------------
 int isPressed(buttonId b) {
@@ -219,7 +222,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				else {
 					rangeSensor[sensorId].rangeMM = rangeMM;
 				}
-
 				//				HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 			}
 		}
@@ -555,9 +557,7 @@ void motorUpdate() {
 				motorIncrementR = 0;
 			}
 		}
-
 	}
-
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -712,9 +712,9 @@ void cBot_init(void) {
 	motorInit();
 
 	// init serial communication
-	//	HAL_Delay(300);
-	//	sercom_init(&hostCom, USART1, 64, 64);
-	//	sercom_transmitStr(&hostCom, "cBot v 0.1\n\r");
+	//HAL_Delay(300);
+	sercom_init(serial, USART1, 64, 64);
+	//sercom_transmitStr(&hostCom, "cBot v 0.1\n\r");
 
 	// init range sensors
 	rangeSensor_init();
