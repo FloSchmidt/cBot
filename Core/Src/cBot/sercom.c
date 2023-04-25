@@ -21,9 +21,7 @@
 
 #include "sercom.h"
 
-
 void sercom_startTransmission(sercom_t *sercom);
-
 
 void sercom_init(sercom_t *sercom, USART_TypeDef *uart, uint16_t rxBufferSize, uint16_t txBufferSize) {
 	// initialize data object

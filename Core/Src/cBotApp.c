@@ -42,6 +42,7 @@ extern buttonId buttonRight;
 extern sercom_t *serial;
 
 uint32_t blinkTimer = 0;
+uint32_t serialTimer = 0;
 
 float remap(float t, float from0, float from1, float to0, float to1)
 {
@@ -184,6 +185,19 @@ void loop() {
 
 		updateLeds();
 	}
+
+//	if(millistimer_expired(&serialTimer, 2000))
+//	{
+//		sercom_transmitStr(serial, "Es geht!\r\n");
+//	}
+
+	if(sercom_linesAvailable(serial))
+	{
+		char data[100];
+		sercom_readLine(serial, data, 99);
+		sercom_transmitStr(serial, data);
+	}
+
 
 
 //	if (isPressed(BUTTON_RIGHT))

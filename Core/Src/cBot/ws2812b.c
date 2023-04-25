@@ -41,7 +41,7 @@ void ws2812b_init(ws2812b_t *ws2812b, uint16_t size, TIM_HandleTypeDef *htim, ui
 	ws2812b->rgbData[size * 24] = 0;
 
 	HAL_DMA_RegisterCallback(&hdma_tim2_ch1, HAL_DMA_XFER_CPLT_CB_ID, ws2812b_dma_completed);
-
+    //0x8001348
 	//hdma_tim2_ch1.XferCpltCallback = ws2812b_dma_completed;
 }
 
