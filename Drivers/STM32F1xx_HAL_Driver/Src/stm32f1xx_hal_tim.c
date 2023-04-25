@@ -6412,7 +6412,7 @@ static void TIM_DMADelayPulseCplt(DMA_HandleTypeDef *hdma)
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
   htim->PWM_PulseFinishedCallback(htim);
 #else
-  HAL_TIM_PWM_PulseFinishedCallback(htim);
+	HAL_TIM_PWM_PulseFinishedCallback(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
 
   htim->Channel = HAL_TIM_ACTIVE_CHANNEL_CLEARED;

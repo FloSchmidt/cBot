@@ -45,6 +45,10 @@ uint32_t ws2812b_colorHSV(uint16_t h, uint8_t s, uint8_t v);
 void ws2812b_setColor(ws2812b_t *ws2812b, uint16_t id, uint32_t color);
 void ws2812b_update(ws2812b_t *ws2812b);
 
+void ws2812b_dma_Complete();
+void ws2812b_dma_half();
+void ws2812b_dma_started();
+void ws2812b_dma_error();
 
 #endif /* WS2812B_H_ */
 

@@ -643,7 +643,6 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
 
     /* Process Unlocked */
     __HAL_UNLOCK(hdma);
-
     if(hdma->XferCpltCallback != NULL)
     {
       /* Transfer complete callback */

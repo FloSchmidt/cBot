@@ -78,8 +78,9 @@ typedef struct {
 	motorRpm_t *lastMotorRpm;
 } motorStatus_t;
 
-
 void cBot_init(void);
+
+uint8_t millistimer_expired(uint32_t *timer, uint16_t increment);
 
 void setServo(uint8_t servoId, uint16_t position);
 

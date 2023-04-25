@@ -20,8 +20,12 @@
 
 #include <ws2812b.h>
 
-void ws2812b_init(ws2812b_t *ws2812b, uint16_t size, TIM_HandleTypeDef *htim, uint32_t channel) {
+extern DMA_HandleTypeDef hdma_tim2_ch1;
+void ws2812b_dma_completed(DMA_HandleTypeDef hdma);
 
+ws2812b_t *currentTransfer = NULL;
+
+void ws2812b_init(ws2812b_t *ws2812b, uint16_t size, TIM_HandleTypeDef *htim, uint32_t channel) {
 	// setup
 	ws2812b->size = size;
 	ws2812b->rgbData = malloc(size * 24 + 1);
@@ -35,6 +39,10 @@ void ws2812b_init(ws2812b_t *ws2812b, uint16_t size, TIM_HandleTypeDef *htim, ui
 
 	// append reset timing to the end of PWM sequence
 	ws2812b->rgbData[size * 24] = 0;
+
+	HAL_DMA_RegisterCallback(&hdma_tim2_ch1, HAL_DMA_XFER_CPLT_CB_ID, ws2812b_dma_completed);
+
+	//hdma_tim2_ch1.XferCpltCallback = ws2812b_dma_completed;
 }
 
 void ws2812b_deInit(ws2812b_t *ws2812b) {
@@ -92,53 +100,8 @@ uint32_t ws2812b_colorHSV(uint16_t h, uint8_t s, uint8_t v) {
 	g = (g * v) / 100;
 	b = (b * v) / 100;
 
-	return (uint32_t)g << 16 | (uint32_t)r << 8 | (uint32_t)b;
+	return CONSTEXPR_COLOR(r,g,b); //(uint32_t)g << 16 | (uint32_t)r << 8 | (uint32_t)b;
 }
-
-//uint32_t ws2812b_colorHSV(uint16_t h, uint8_t s, uint8_t v) {
-//	uint32_t r = 0, g = 0, b = 0, base;
-//
-//	// value (0..359)
-//	if ( h < 60 ) {
-//		r = 255;
-//		b = 0;
-//		g = 4.25 * h;
-//	} else if ( h < 120 ) {
-//		g = 255;
-//		b = 0;
-//		r = 255 - (4.25 * (h - 60));
-//	} else if ( h < 180 ) {
-//		r = 0;
-//		g = 255;
-//		b = 4.25 * (h-120);
-//	} else if ( h < 240 ) {
-//		r = 0;
-//		b = 255;
-//		g = 255 - (4.25 * (h - 180));
-//	} else if ( h < 300 ) {
-//		g = 0;
-//		b = 255;
-//		r = 4.25 * (h-240);
-//	} else if ( h < 360 ) {
-//		r = 255;
-//		g = 0;
-//		b = 255 - (4.25 * (h - 300));
-//	}
-//
-//	// saturation (0..100%)
-//	base = (100 - s) * 255 / 100;
-//	r = r * s / 100 + base;
-//	g = g * s / 100 + base;
-//	b = b * s / 100 + base;
-//
-//	// value (0..100%)
-//	r = (r * v) / 100;
-//	g = (g * v) / 100;
-//	b = (b * v) / 100;
-//
-//	return (uint32_t)g << 16 | (uint32_t)r << 8 | (uint32_t)b;
-//}
-
 
 void ws2812b_setColor(ws2812b_t *ws2812b, uint16_t id, uint32_t color) {
 	uint8_t *buf = ws2812b->rgbData + (id % ws2812b->size) * 24;
@@ -152,10 +115,13 @@ void ws2812b_update(ws2812b_t *ws2812b) {
 	HAL_TIM_Base_Stop(ws2812b->htim);
 	__HAL_TIM_SET_COUNTER(ws2812b->htim, 0);
 	HAL_TIM_PWM_Start_DMA(ws2812b->htim, ws2812b->channel, (uint32_t *)ws2812b->rgbData, ws2812b->size * 24 + 1);
+	currentTransfer = ws2812b;
 	HAL_TIM_Base_Start(ws2812b->htim);
 }
 
 
-
-
+void ws2812b_dma_completed(DMA_HandleTypeDef hdma)
+{
+	currentTransfer = NULL;
+}
 

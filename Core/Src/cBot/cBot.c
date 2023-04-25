@@ -31,7 +31,6 @@ extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
 
-
 buttons_t buttons;
 button_t *buttonRight, *buttonDown, *buttonLeft, *buttonUp;
 
@@ -44,10 +43,21 @@ ws2812b_t *rgbLeds = &rgbLedObj;
 u8g2_t displayObj;
 u8g2_t *display = &displayObj;
 
+// sytick_timer
+uint8_t millistimer_expired(uint32_t *timer, uint16_t increment)
+{
+	// be aware that nextrun is calculated on millistimer_millis() which may result in slight jitter.
+	// For low jitter applications timer should be set to nextrun. -> has to be implemented in a separate function
+	// However then you need to make shure the function is invoked at least once in increment milliseconds.
 
-// TODO:
-// - serial interface
-
+	uint32_t nextrun = *timer + increment;
+	if (nextrun < HAL_GetTick())
+	{
+		*timer = HAL_GetTick() + increment;
+		return 1;
+	}
+	return 0;
+}
 
 // ----- Buttons --------------------------------------------------------------
 int isPressed(buttonId b) {
@@ -149,7 +159,6 @@ void setServo(uint8_t servoId, uint16_t position) {
 		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, compareValue);
 		break;
 	}
-
 }
 
 void servo_init() {
@@ -190,7 +199,6 @@ void rangeSensor_init() {
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	uint16_t timeStamp = __HAL_TIM_GET_COUNTER(&htim1);
 
-
 	for ( int sensorId = 0; sensorId < 3; sensorId++ ) {
 		if ( GPIO_Pin == rangeSensor[sensorId].echoPin ) {
 			if ( rangeSensor[sensorId].echoStartCoarse == 0 ) {
@@ -214,10 +222,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 				//				HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 			}
-
 		}
 	}
-
 }
 
 int getRangeMm(sensorId id) {
@@ -287,8 +293,6 @@ float rpmMax = 22;
 float rpmStart = 2;
 uint8_t accellerationSteps = 10;
 float accellerationStepDuration = 0.020;
-
-
 
 motorStatus_t motorStatus;
 
@@ -428,7 +432,6 @@ void accelleratedMove(float rpmL, float rpmR, float duration) {
 		// dispose motor RPM object
 		free(motorRpm);
 	}
-
 }
 
 void driveStrait(float distance) {
@@ -670,7 +673,6 @@ void motor_acceleratedForward(float rpmMin, float rpmMax, float rpmStep, int ste
 		motor_setSpeed(rpm, rpm);
 		HAL_Delay(stepDurationMs);
 	}
-
 }
 // ----- Motors ---------------------------------------------------------------
 
@@ -693,7 +695,7 @@ void cBot_init(void) {
 
 	// init RGB LEDs
 	ws2812b_init(rgbLeds, 10, &htim2, TIM_CHANNEL_1);
-	ws2812b_clear(rgbLeds);
+	//ws2812b_clear(rgbLeds);
 	ws2812b_update(rgbLeds);
 	HAL_Delay(20);
 
@@ -719,8 +721,5 @@ void cBot_init(void) {
 
 	// init motors
 	HAL_TIM_Base_Start_IT(&htim4);
-
-
-
 }
 

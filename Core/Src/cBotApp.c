@@ -39,6 +39,8 @@
 extern ws2812b_t *rgbLeds;
 extern buttonId buttonRight;
 
+uint32_t blinkTimer = 0;
+
 float remap(float t, float from0, float from1, float to0, float to1)
 {
 	return (t - from0) / (to0 - from0) * (to1 - from1) + from1;
@@ -52,8 +54,6 @@ float clamp(float value, float min, float max)
 		return max;
 	return value;
 }
-
-
 
 void updateDisplay() {
 	// read range values
@@ -141,9 +141,27 @@ void loop() {
 //	int rangeLeft = getRangeMm(SENSOR_LEFT);
 //	int rangeMiddle = getRangeMm(SENSOR_MIDDLE);
 //	int rangeRight = getRangeMm(SENSOR_RIGHT);
-
 	const int intensityL = getLightValue(SENSOR_LEFT);
 	const int intensityR = getLightValue(SENSOR_RIGHT);
+
+	static int ledstate = 0;
+
+	if(millistimer_expired(&blinkTimer, 500))
+	{
+		if(ledstate)
+		{
+			ledstate = 0;
+			setLed(1, getColorRGB(255,0, 0));
+		}
+		else
+		{
+			ledstate = 1;
+			setLed(1, getColorRGB(0, 255, 0));
+		}
+
+		updateLeds();
+	}
+
 
 //	if (isPressed(BUTTON_RIGHT))
 //	{
@@ -177,7 +195,6 @@ void loop() {
 	    float speedLeft = clamp(remap(diff, -100, 0, 0, 16), 0, 16);
 
 	    setMotorRpm(speedLeft, speedRight);
-
 	}
 
 
