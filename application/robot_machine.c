@@ -8,6 +8,8 @@
 
 extern button_t buttonDown;
 
+#define MAX_SPEED 12
+
 void robotMachine_StateLoop_Idle(SM_StateMachine *self);
 void robotMachine_StateLoop_IdlePressed(SM_StateMachine *self);
 void robotMachine_StateLoop_Forward(SM_StateMachine *self);
@@ -77,11 +79,11 @@ void robotMachine_StateLoop_Forward(SM_StateMachine *self)
 	int diff = intensityL - intensityR;
 
 	if (diff < -100)
-		setMotorRpm(0,8);
+		setMotorRpm(0,MAX_SPEED);
 	else if (diff > 100)
-		setMotorRpm(8,0);
+		setMotorRpm(MAX_SPEED,0);
 	else
-		setMotorRpm(8, 8);
+		setMotorRpm(MAX_SPEED, MAX_SPEED);
 
 	if ((intensityL + intensityR) < 1800)
 	{
@@ -93,7 +95,7 @@ void robotMachine_StateLoop_ForwardCrossing(SM_StateMachine *self)
 {
 	const int intensityL = getLightValue(SENSOR_LEFT);
 	const int intensityR = getLightValue(SENSOR_RIGHT);
-	setMotorRpm(8, 8);
+	setMotorRpm(MAX_SPEED/2, MAX_SPEED);
 	if ((intensityL + intensityR) > 2000)
 	{
 		stateMachine_transissionTo(self, FORWARD_TO_LINE);
@@ -102,7 +104,7 @@ void robotMachine_StateLoop_ForwardCrossing(SM_StateMachine *self)
 
 void robotMachine_StateEnter_ForwardToLine(SM_StateMachine *self)
 {
-	driveStrait(0.04);
+	driveStrait(0.035);
 }
 
 void robotMachine_StateLoop_ForwardToLine(SM_StateMachine *self)

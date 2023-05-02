@@ -108,11 +108,11 @@ void cycleLightSensorColor()
 {
 	static int currentColorIndex = 0;
 	static const uint32_t colors[] = {
+			CONSTEXPR_COLOR(255, 255, 255),
 			CONSTEXPR_COLOR(0, 0, 0),
 			CONSTEXPR_COLOR(0, 0, 255),
 			CONSTEXPR_COLOR(0, 255, 0),
 			CONSTEXPR_COLOR(255, 0, 0),
-			CONSTEXPR_COLOR(255, 255, 255)
 	};
 	static const int colorsCount = 5;
 	setLightSensorColor(colors[currentColorIndex]);
