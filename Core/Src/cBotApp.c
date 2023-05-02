@@ -144,7 +144,7 @@ void init() {
 //	c[5] = 10;
 
 	cycleLightSensorColor();
-
+	robotMachine_Init();
 }
 
 
@@ -186,30 +186,13 @@ void loop() {
 		updateLeds();
 	}
 
-//	if(millistimer_expired(&serialTimer, 2000))
-//	{
-//		sercom_transmitStr(serial, "Es geht!\r\n");
-//	}
-
 	if(sercom_linesAvailable(serial))
 	{
 		char data[100];
 		sercom_readLine(serial, data, 99);
+
 		sercom_transmitStr(serial, data);
 	}
-
-
-
-//	if (isPressed(BUTTON_RIGHT))
-//	{
-//		ws2812b_setColor(rgbLeds, 0, ws2812b_colorRGB(255, 0, 0));
-//		setMotorRpm(10, 10);
-//	}
-//	else
-//	{
-//		ws2812b_setColor(rgbLeds, 0, ws2812b_colorRGB(255, 0, 0));
-//		setMotorRpm(0,0);
-//	}
 
 	if ( isPressed(BUTTON_LEFT) ) {
 		cycleLightSensorColor();
@@ -240,17 +223,17 @@ void loop() {
 	}
 
 
-	if (running)
-	{
-	    int diff = intensityL - intensityR;
+//	if (running)
+//	{
+//	    int diff = intensityL - intensityR;
+//
+//	    float speedRight = clamp(remap(diff, 100, 0, 16, 0), 0, 16);
+//	    float speedLeft = clamp(remap(diff, -100, 0, 0, 16), 0, 16);
+//
+//	    setMotorRpm(speedLeft, speedRight);
+//	}
 
-	    float speedRight = clamp(remap(diff, 100, 0, 16, 0), 0, 16);
-	    float speedLeft = clamp(remap(diff, -100, 0, 0, 16), 0, 16);
-
-	    setMotorRpm(speedLeft, speedRight);
-	}
-
-
+	robotMachine_Task();
 
 
 //	if (running && !isMoving())

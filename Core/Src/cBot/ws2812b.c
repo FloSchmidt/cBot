@@ -21,7 +21,6 @@
 #include <ws2812b.h>
 
 extern DMA_HandleTypeDef hdma_tim2_ch1;
-void ws2812b_dma_completed(DMA_HandleTypeDef hdma);
 
 ws2812b_t *currentTransfer = NULL;
 
@@ -40,7 +39,9 @@ void ws2812b_init(ws2812b_t *ws2812b, uint16_t size, TIM_HandleTypeDef *htim, ui
 	// append reset timing to the end of PWM sequence
 	ws2812b->rgbData[size * 24] = 0;
 
-	HAL_DMA_RegisterCallback(&hdma_tim2_ch1, HAL_DMA_XFER_CPLT_CB_ID, ws2812b_dma_completed);
+
+	//HAL_PWM_RegisterCallback(PWM_PulseFinishedCallback
+	//HAL_DMA_RegisterCallback(&hdma_tim2_ch1, HAL_DMA_XFER_CPLT_CB_ID, ws2812b_dma_completed);
     //0x8001348
 	//hdma_tim2_ch1.XferCpltCallback = ws2812b_dma_completed;
 }
@@ -119,9 +120,7 @@ void ws2812b_update(ws2812b_t *ws2812b) {
 	HAL_TIM_Base_Start(ws2812b->htim);
 }
 
-
-void ws2812b_dma_completed(DMA_HandleTypeDef hdma)
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
 	currentTransfer = NULL;
-}
-
+};
