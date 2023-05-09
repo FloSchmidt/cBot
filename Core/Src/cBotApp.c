@@ -191,6 +191,30 @@ void loop() {
 		char data[100];
 		sercom_readLine(serial, data, 99);
 
+		if (data[0] == 'l' || data[0] == 'L')
+		{
+			robotMachine_EVENT_Left();
+		}
+
+		if (data[0] == 'r' || data[0] == 'R')
+		{
+			robotMachine_EVENT_Right();
+		}
+
+		if (data[0] == '1')
+		{
+			robotMachine_EVENT_Forward(1);
+		}
+
+		if (data[0] == '2')
+		{
+			robotMachine_EVENT_Forward(2);
+		}
+
+		if (data[0] == '3')
+		{
+			robotMachine_EVENT_Forward(3);
+		}
 		sercom_transmitStr(serial, data);
 	}
 
@@ -232,6 +256,9 @@ void loop() {
 //
 //	    setMotorRpm(speedLeft, speedRight);
 //	}
+
+
+
 
 	robotMachine_Task();
 
