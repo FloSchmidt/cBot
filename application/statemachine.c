@@ -4,7 +4,6 @@
 
 #include <assert.h>
 
-
 extern sercom_t *serial;
 #define COMMANDPARSER_SENDDEBUG(data, len, ...) \
     do { \
@@ -30,7 +29,7 @@ void stateMachine_transissionTo(SM_StateMachine *self, uint8_t newState)
 	assert(newState < self->constData->stateCount);
 
 #ifdef DEBUG_STATEMACHINE
-//	COMMANDPARSER_SENDDEBUG("%s: %d -> %d", 30, self->constData->name, self->currentState, newState);
+	COMMANDPARSER_SENDDEBUG("%s: %d -> %d\n", 30, self->constData->name, self->currentState, newState);
 #endif
 	
 	SM_ExitFunc exitFn = self->constData->stateMap[self->currentState].exitFn;

@@ -10,5 +10,5 @@ void dispenserMachine_Task(void);
 //uint8_t dispenserMachine_EVENTenableFreeRotation(void);
 //uint8_t dispenserMachine_EVENTdisableFreeRotation(void);
 
-int robotMachine_EVENT_Forward();
+int robotMachine_EVENT_Forward(int count);
 
