@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 
 
 #define WALL_DISTANCE 90
@@ -40,6 +41,8 @@
 extern ws2812b_t *rgbLeds;
 extern buttonId buttonRight;
 extern sercom_t *serial;
+
+char yPos = 0;
 
 uint32_t blinkTimer = 0;
 uint32_t serialTimer = 0;
@@ -79,8 +82,6 @@ void updateDisplay() {
 	if ( rangeRight <= MAX_RANGE ) sprintf(rangeTextRight, "%3d", rangeRight);
 	else sprintf(rangeTextRight, "---");
 
-//	sprintf(text, "Flo3@Hackwerk");
-//	u8g2_DrawStr(display, 0, 0, text);
 
 	sprintf(text, "ranges");
 	u8g2_DrawStr(display, 0, 16, text);
@@ -120,6 +121,19 @@ void cycleLightSensorColor()
 	currentColorIndex = (currentColorIndex + 1) % colorsCount;
 }
 
+void clearInitDisplay()
+{
+	yPos = 0;
+	u8g2_ClearBuffer(display);
+	u8g2_SetDrawColor(display, 1);
+	u8g2_SetFont(display, u8g2_font_5x7_tf);
+}
+
+void writeSerialToDisplay(char *text) {
+	u8g2_DrawStr(display, 0, yPos += 6, text);
+	u8g2_SendBuffer(display);
+}
+
 void init() {
 	// initialize your cBot here
 //	sercom_transmitStr(serial, "AT\r\n");
@@ -138,10 +152,114 @@ void init() {
 
 // 	while(sercom_bytesAvailable(serial) < 2);
 //
-
 //	sercom_readLine(serial, c, 64);
 
-//	c[5] = 10;
+	char temp[100];
+	HAL_Delay(1000);
+	sercom_transmitStr(serial, "AT+RST\r\n");
+	HAL_Delay(1000);
+	clearInitDisplay();
+	while (sercom_linesAvailable(serial))
+	{
+		memset(temp,'\0',100);
+		sercom_readLine(serial, temp, sizeof(temp)-1);
+		writeSerialToDisplay(temp);
+		if (temp[0]=='r' && temp[1]=='e' && temp[2]=='a' && temp[3]=='d' && temp[4]=='y')
+		{
+			break;
+		}
+		else
+		{
+			HAL_Delay(1000);
+		}
+	}
+
+	sercom_transmitStr(serial, "AT+CWMODE=3\r\n");
+	HAL_Delay(1000);
+	while (sercom_linesAvailable(serial))
+	{
+		memset(temp,'\0',100);
+		sercom_readLine(serial, temp, sizeof(temp)-1);
+		writeSerialToDisplay(temp);
+		if (temp[0]=='O' && temp[1]=='K')
+		{
+			break;
+		}
+		else
+		{
+			HAL_Delay(1000);
+		}
+	}
+
+	clearInitDisplay();
+	sercom_transmitStr(serial, "AT+CWJAP=\"NewTonWars\",\"AchPatrickAch\"\r\n");
+	HAL_Delay(1000);
+	while (sercom_linesAvailable(serial))
+	{
+		memset(temp,'\0',100);
+		sercom_readLine(serial, temp, sizeof(temp)-1);
+		writeSerialToDisplay(temp);
+		if (temp[0]=='O' && temp[1]=='K')
+		{
+			break;
+		}
+		else
+		{
+			HAL_Delay(1000);
+		}
+	}
+	sercom_transmitStr(serial, "AT+CIPSTART=\"TCP\",\"192.168.2.102\",4321\r\n");
+	HAL_Delay(1000);
+	while (sercom_linesAvailable(serial))
+	{
+		memset(temp,'\0',100);
+		sercom_readLine(serial, temp, sizeof(temp)-1);
+		writeSerialToDisplay(temp);
+		if (temp[0]=='O' && temp[1]=='K')
+		{
+			break;
+		}
+		else
+		{
+			HAL_Delay(1000);
+		}
+	}
+
+	clearInitDisplay();
+	sercom_transmitStr(serial, "AT+CIPSEND=14\r\n");
+	HAL_Delay(1000);
+	while (sercom_linesAvailable(serial))
+	{
+		memset(temp,'\0',100);
+		sercom_readLine(serial, temp, sizeof(temp)-1);
+		writeSerialToDisplay(temp);
+		if (temp[0]=='O' && temp[1]=='K')
+		{
+			break;
+		}
+		else
+		{
+			HAL_Delay(1000);
+		}
+	}
+
+	char payload[] = "Hello World!\r\n";
+	sercom_transmitStr(serial, "Hello World!\r\n");
+	HAL_Delay(1000);
+	while (sercom_linesAvailable(serial))
+	{
+		memset(temp,'\0',100);
+		sercom_readLine(serial, temp, sizeof(temp)-1);
+		writeSerialToDisplay(temp);
+		if (temp[0]=='S' && temp[1]=='E' && temp[2]=='N' && temp[3]=='D' && temp[4]==' ' && temp[5]=='O' && temp[6]=='K')
+		{
+			break;
+		}
+		else
+		{
+			HAL_Delay(1000);
+		}
+	}
 
 	cycleLightSensorColor();
 	robotMachine_Init();
@@ -191,31 +309,35 @@ void loop() {
 		char data[100];
 		sercom_readLine(serial, data, 99);
 
-		if (data[0] == 'l' || data[0] == 'L')
+		char expected[] = "+IPD,2:";
+		if (memcmp(data, expected, sizeof(expected)));
 		{
-			robotMachine_EVENT_Left();
-		}
+			if (data[7] == 'l' || data[7] == 'L')
+			{
+				robotMachine_EVENT_Left();
+			}
 
-		if (data[0] == 'r' || data[0] == 'R')
-		{
-			robotMachine_EVENT_Right();
-		}
+			if (data[7] == 'r' || data[7] == 'R')
+			{
+				robotMachine_EVENT_Right();
+			}
 
-		if (data[0] == '1')
-		{
-			robotMachine_EVENT_Forward(1);
-		}
+			if (data[7] == '1')
+			{
+				robotMachine_EVENT_Forward(1);
+			}
 
-		if (data[0] == '2')
-		{
-			robotMachine_EVENT_Forward(2);
-		}
+			if (data[7] == '2')
+			{
+				robotMachine_EVENT_Forward(2);
+			}
 
-		if (data[0] == '3')
-		{
-			robotMachine_EVENT_Forward(3);
+			if (data[7] == '3')
+			{
+				robotMachine_EVENT_Forward(3);
+			}
+			sercom_transmitStr(serial, data);
 		}
-		sercom_transmitStr(serial, data);
 	}
 
 	if ( isPressed(BUTTON_LEFT) ) {
