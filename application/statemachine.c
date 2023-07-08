@@ -1,4 +1,4 @@
-#define DEBUG_STATEMACHINE
+//#define DEBUG_STATEMACHINE
 #include "statemachine.h"
 #include "sercom.h"
 

@@ -28,10 +28,12 @@
 #include "ws2812b.h"
 #include "sercom.h"
 
+#include "../../application/robot_machine.h"
+#include "../../application/communication_machine.h"
+
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-
 
 #define WALL_DISTANCE 90
 #define OFFSET_SENSOR_RIGHT 30
@@ -41,8 +43,6 @@
 extern ws2812b_t *rgbLeds;
 extern buttonId buttonRight;
 extern sercom_t *serial;
-
-char yPos = 0;
 
 uint32_t blinkTimer = 0;
 uint32_t serialTimer = 0;
@@ -121,147 +121,10 @@ void cycleLightSensorColor()
 	currentColorIndex = (currentColorIndex + 1) % colorsCount;
 }
 
-void clearInitDisplay()
-{
-	yPos = 0;
-	u8g2_ClearBuffer(display);
-	u8g2_SetDrawColor(display, 1);
-	u8g2_SetFont(display, u8g2_font_5x7_tf);
-}
-
-void writeSerialToDisplay(char *text) {
-	u8g2_DrawStr(display, 0, yPos += 6, text);
-	u8g2_SendBuffer(display);
-}
-
 void init() {
 	// initialize your cBot here
-//	sercom_transmitStr(serial, "AT\r\n");
-//	while(serial->isTxActive);
-//	HAL_Delay(100);
-
-//	while(serial->isTxActive);
-//	HAL_Delay(500);
-//	char c[64] = {0};
-//	sercom_readLine(serial, c, 64);
-//
-// 	sercom_transmitStr(serial, "AT+CWMODE=2\r\n");
-// 	while(serial->isTxActive);
-// 	HAL_Delay(100);
-// 	while(serial->isTxActive);
-
-// 	while(sercom_bytesAvailable(serial) < 2);
-//
-//	sercom_readLine(serial, c, 64);
-
-	char temp[100];
-	HAL_Delay(1000);
-	sercom_transmitStr(serial, "AT+RST\r\n");
-	HAL_Delay(1000);
-	clearInitDisplay();
-	while (sercom_linesAvailable(serial))
-	{
-		memset(temp,'\0',100);
-		sercom_readLine(serial, temp, sizeof(temp)-1);
-		writeSerialToDisplay(temp);
-		if (temp[0]=='r' && temp[1]=='e' && temp[2]=='a' && temp[3]=='d' && temp[4]=='y')
-		{
-			break;
-		}
-		else
-		{
-			HAL_Delay(1000);
-		}
-	}
-
-	sercom_transmitStr(serial, "AT+CWMODE=3\r\n");
-	HAL_Delay(1000);
-	while (sercom_linesAvailable(serial))
-	{
-		memset(temp,'\0',100);
-		sercom_readLine(serial, temp, sizeof(temp)-1);
-		writeSerialToDisplay(temp);
-		if (temp[0]=='O' && temp[1]=='K')
-		{
-			break;
-		}
-		else
-		{
-			HAL_Delay(1000);
-		}
-	}
-
-	clearInitDisplay();
-	sercom_transmitStr(serial, "AT+CWJAP=\"NewTonWars\",\"AchPatrickAch\"\r\n");
-	HAL_Delay(1000);
-	while (sercom_linesAvailable(serial))
-	{
-		memset(temp,'\0',100);
-		sercom_readLine(serial, temp, sizeof(temp)-1);
-		writeSerialToDisplay(temp);
-		if (temp[0]=='O' && temp[1]=='K')
-		{
-			break;
-		}
-		else
-		{
-			HAL_Delay(1000);
-		}
-	}
-	sercom_transmitStr(serial, "AT+CIPSTART=\"TCP\",\"192.168.2.102\",4321\r\n");
-	HAL_Delay(1000);
-	while (sercom_linesAvailable(serial))
-	{
-		memset(temp,'\0',100);
-		sercom_readLine(serial, temp, sizeof(temp)-1);
-		writeSerialToDisplay(temp);
-		if (temp[0]=='O' && temp[1]=='K')
-		{
-			break;
-		}
-		else
-		{
-			HAL_Delay(1000);
-		}
-	}
-
-	clearInitDisplay();
-	sercom_transmitStr(serial, "AT+CIPSEND=14\r\n");
-	HAL_Delay(1000);
-	while (sercom_linesAvailable(serial))
-	{
-		memset(temp,'\0',100);
-		sercom_readLine(serial, temp, sizeof(temp)-1);
-		writeSerialToDisplay(temp);
-		if (temp[0]=='O' && temp[1]=='K')
-		{
-			break;
-		}
-		else
-		{
-			HAL_Delay(1000);
-		}
-	}
-
-	char payload[] = "Hello World!\r\n";
-	sercom_transmitStr(serial, "Hello World!\r\n");
-	HAL_Delay(1000);
-	while (sercom_linesAvailable(serial))
-	{
-		memset(temp,'\0',100);
-		sercom_readLine(serial, temp, sizeof(temp)-1);
-		writeSerialToDisplay(temp);
-		if (temp[0]=='S' && temp[1]=='E' && temp[2]=='N' && temp[3]=='D' && temp[4]==' ' && temp[5]=='O' && temp[6]=='K')
-		{
-			break;
-		}
-		else
-		{
-			HAL_Delay(1000);
-		}
-	}
-
 	cycleLightSensorColor();
+	communicationMachine_Init();
 	robotMachine_Init();
 }
 
@@ -304,159 +167,73 @@ void loop() {
 		updateLeds();
 	}
 
-	if(sercom_linesAvailable(serial))
-	{
-		char data[100];
-		sercom_readLine(serial, data, 99);
-
-		char expected[] = "+IPD,2:";
-		if (memcmp(data, expected, sizeof(expected)));
-		{
-			if (data[7] == 'l' || data[7] == 'L')
-			{
-				robotMachine_EVENT_Left();
-			}
-
-			if (data[7] == 'r' || data[7] == 'R')
-			{
-				robotMachine_EVENT_Right();
-			}
-
-			if (data[7] == '1')
-			{
-				robotMachine_EVENT_Forward(1);
-			}
-
-			if (data[7] == '2')
-			{
-				robotMachine_EVENT_Forward(2);
-			}
-
-			if (data[7] == '3')
-			{
-				robotMachine_EVENT_Forward(3);
-			}
-			sercom_transmitStr(serial, data);
-		}
-	}
-
-	if ( isPressed(BUTTON_LEFT) ) {
-		cycleLightSensorColor();
-		while ( isPressed(BUTTON_LEFT) );	// wait until key is released
-	}
-
-	if ( isPressed(BUTTON_RIGHT) ) {
-		running = !running;
-		if ( !running ) {
-			stopMotor();
-		}
-		while ( isPressed(BUTTON_RIGHT) );	// wait until key is released
-	}
-
-	static int servoPos = 100;
-	if ( isPressed(BUTTON_UP) ) {
-		if (servoPos == 100)
-		{
-			servoPos = 900;
-		}
-		else
-		{
-			servoPos = 100;
-		}
-
-		setServo(1, servoPos);
-		while ( isPressed(BUTTON_UP) );	// wait until key is released
-	}
-
-
-//	if (running)
+//	if(sercom_linesAvailable(serial))
 //	{
-//	    int diff = intensityL - intensityR;
+//		char data[100];
+//		sercom_readLine(serial, data, 99);
 //
-//	    float speedRight = clamp(remap(diff, 100, 0, 16, 0), 0, 16);
-//	    float speedLeft = clamp(remap(diff, -100, 0, 0, 16), 0, 16);
-//
-//	    setMotorRpm(speedLeft, speedRight);
-//	}
-
-
-
-
-	robotMachine_Task();
-
-
-//	if (running && !isMoving())
-//	{
-//		ws2812b_setColor(rgbLeds, 0, ws2812b_colorRGB(255, 0, 0));
-//		if (lastTurnLeft)
+//		char expected[] = "+IPD,2:";
+//		if (memcmp(data, expected, sizeof(expected)))
 //		{
-//			turn(30);
-//			lastTurnLeft = 0;
-//		}
-//		else
-//		{
-//			turn(-30);
-//			lastTurnLeft = 1;
-//		}
-//	}
-
-	//ws2812b_update(rgbLeds);
-
-//	if ( !isWaiting ) {
-//		const int diff = intensityL - intensityR;
-//		const float base = 20.;
+//			if (data[7] == 'l' || data[7] == 'L')
+//			{
+//				robotMachine_EVENT_Left();
+//			}
 //
-//		const float rpmLeft = base * (diff / 600);
-//		const float rpmRight = base * (- diff / 600);
-
-//		motorUpdate();
+//			if (data[7] == 'r' || data[7] == 'R')
+//			{
+//				robotMachine_EVENT_Right();
+//			}
 //
-//		getRpmFromVelocity(&rpmLeft, &rpmRight, 0.02, -angularSpeed); // linear velocity in m/s; angular rate in radians/s
-//		setMotorRpm(rpmLeft, rpmRight);
-
+//			if (data[7] == '1')
+//			{
+//				robotMachine_EVENT_Forward(1);
+//			}
 //
-//		if ( (rangeLeft > MAX_RANGE) && (rangeMiddle > MAX_RANGE) && (rangeRight > MAX_RANGE) ) {
-//			driveArc((WALL_DISTANCE + OFFSET_SENSOR_LEFT) / 1000.0, 30); // radius in m, angle in degree
-//			while ( isMoving() );
-//			resetErrorHistory();
-//		}
-//		else
-//			if ( (rangeMiddle <= WALL_DISTANCE) || (rangeRight - OFFSET_SENSOR_RIGHT <= WALL_DISTANCE) ) {
-//			turn(-15);
-//			while ( isMoving() );
-//			resetErrorHistory();
-//		}
-////		else if (rangeLeft <= MAX_RANGE) {
+//			if (data[7] == '2')
+//			{
+//				robotMachine_EVENT_Forward(2);
+//			}
 //
-//			// determine error
-//			int error = WALL_DISTANCE - rangeLeft;
-//			if ( error < -WALL_DISTANCE ) error = -WALL_DISTANCE;
-//
-//			// get old error and store current error
-//			int errorOld = errorHistory[historyId];
-//			errorHistory[historyId] = error;
-//			historyId = (historyId + 1) % ERROR_HISTORY_SIZE;
-//			if ( historyId == 0 ) HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-//
-//			float angularSpeed = 0.002 * error + 0.002 * (error - errorOld);
-//
-//			float rpmLeft, rpmRight;
-//			getRpmFromVelocity(&rpmLeft, &rpmRight, 0.02, -angularSpeed); // linear velocity in m/s; angular rate in radians/s
-//			setMotorRpm(rpmLeft, rpmRight);
+//			if (data[7] == '3')
+//			{
+//				robotMachine_EVENT_Forward(3);
+//			}
+//			sercom_transmitStr(serial, data);
 //		}
 //	}
-//	else {
-//		setMotorRpm(0, 0);
+//
+//	if ( isPressed(BUTTON_LEFT) ) {
+//		cycleLightSensorColor();
+//		while ( isPressed(BUTTON_LEFT) );	// wait until key is released
 //	}
 //
-//	// start or stop robot
 //	if ( isPressed(BUTTON_RIGHT) ) {
-//		isWaiting = 1 - isWaiting;
-//		if ( !isWaiting ) resetErrorHistory();
+//		running = !running;
+//		if ( !running ) {
+//			stopMotor();
+//		}
 //		while ( isPressed(BUTTON_RIGHT) );	// wait until key is released
 //	}
 //
-	updateDisplay();
+//	static int servoPos = 100;
+//	if ( isPressed(BUTTON_UP) ) {
+//		if (servoPos == 100)
+//		{
+//			servoPos = 900;
+//		}
+//		else
+//		{
+//			servoPos = 100;
+//		}
+//
+//		setServo(1, servoPos);
+//		while ( isPressed(BUTTON_UP) );	// wait until key is released
+//	}
+
+	communicationMachine_Task();
+	robotMachine_Task();
+	//updateDisplay();
 
 }
 

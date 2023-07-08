@@ -59,6 +59,12 @@ uint8_t millistimer_expired(uint32_t *timer, uint16_t increment)
 	}
 	return 0;
 }
+
+void millistimer_start(uint32_t *timer)
+{
+	*timer = HAL_GetTick();
+}
+
 sercom_t serialObj;
 sercom_t *serial = &serialObj;
 
