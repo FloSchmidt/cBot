@@ -2,13 +2,10 @@
 #include "statemachine.h"
 #include <stdint.h>
 
-void dispenserMachine_Init(void);
-void dispenserMachine_Task(void);
-
-//void dispenserMachine_EVENTcancel(void);
-//uint8_t dispenserMachine_EVENTopenCompartment(uint8_t column, uint8_t layer);
-//uint8_t dispenserMachine_EVENTenableFreeRotation(void);
-//uint8_t dispenserMachine_EVENTdisableFreeRotation(void);
+void robotMachine_Init(void);
+void robotMachine_Task(void);
 
 int robotMachine_EVENT_Forward(int count);
+int robotMachine_EVENT_Left();
+int robotMachine_EVENT_Right();
 

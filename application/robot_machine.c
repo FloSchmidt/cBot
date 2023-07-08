@@ -9,7 +9,6 @@
 extern button_t buttonDown;
 int robotMachine_count = 0;
 
-
 #define MAX_SPEED 12
 
 void robotMachine_StateLoop_Idle(SM_StateMachine *self);
@@ -159,7 +158,7 @@ int robotMachine_EVENT_Forward(int count)
 	return 0;
 }
 
-int robotMachine_EVENT_Right(int count)
+int robotMachine_EVENT_Right()
 {
 	if (robotMachine.currentState != IDLE)
 		return 1;
@@ -168,7 +167,7 @@ int robotMachine_EVENT_Right(int count)
 	return 0;
 }
 
-int robotMachine_EVENT_Left(int count)
+int robotMachine_EVENT_Left()
 {
 	if (robotMachine.currentState != IDLE)
 		return 1;
