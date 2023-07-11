@@ -73,7 +73,7 @@ static void MX_TIM4_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+extern void initialise_monitor_handles(void);
 /* USER CODE END 0 */
 
 /**
@@ -113,14 +113,14 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
+
+  initialise_monitor_handles();
   cBot_init();
   init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
-
   while (1)
   {
 	  loop();

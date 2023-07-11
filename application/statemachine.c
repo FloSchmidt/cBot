@@ -1,16 +1,16 @@
-//#define DEBUG_STATEMACHINE
+#define DEBUG_STATEMACHINE
 #include "statemachine.h"
-#include "sercom.h"
-
+#include <stdio.h>
 #include <assert.h>
 
-extern sercom_t *serial;
 #define COMMANDPARSER_SENDDEBUG(data, len, ...) \
     do { \
-		uint8_t buffer[len]; \
-		const uint8_t cnt = snprintf(buffer, len, data, ##__VA_ARGS__); \
-		sercom_transmitStr(serial, buffer); \
-    } while(0)
+		printf(data, ##__VA_ARGS__);\
+    } while(0);
+
+/*uint8_t buffer[len]; \
+const uint8_t cnt = snprintf(buffer, len, data, ##__VA_ARGS__); \
+sercom_transmitStr(serial, buffer); \*/
 
 void stateMachine_Init(SM_StateMachine *self)
 {

@@ -18,7 +18,6 @@
  *
  */
 
-
 #include "sercom.h"
 
 void sercom_startTransmission(sercom_t *sercom);
@@ -35,7 +34,6 @@ void sercom_init(sercom_t *sercom, USART_TypeDef *uart, uint16_t rxBufferSize, u
 	LL_USART_EnableIT_RXNE(uart);
 	LL_USART_EnableIT_TC(uart);
 }
-
 
 void sercom_irqHandler(sercom_t *sercom) {
 	if (LL_USART_IsActiveFlag_RXNE(sercom->uart)) {
