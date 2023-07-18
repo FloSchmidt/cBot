@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+
 #define COMMANDPARSER_SENDDEBUG(data, len, ...) \
     do { \
 		printf(data, ##__VA_ARGS__);\
@@ -29,7 +30,9 @@ void stateMachine_transissionTo(SM_StateMachine *self, uint8_t newState)
 	assert(newState < self->constData->stateCount);
 
 #ifdef DEBUG_STATEMACHINE
+#ifdef DEBUG
 	COMMANDPARSER_SENDDEBUG("%s: %d -> %d\n", 30, self->constData->name, self->currentState, newState);
+#endif
 #endif
 	
 	SM_ExitFunc exitFn = self->constData->stateMap[self->currentState].exitFn;

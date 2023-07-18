@@ -123,7 +123,9 @@ void communicationMachine_Task(void)
 	{
 		memset(lastLine, 0, sizeof(lastLine));
 		sercom_readLine(serial, lastLine, sizeof(lastLine)-1);
+#ifdef DEBUG
 		printf("ESP>>: %s", lastLine);
+#endif
 	}
 
 	stateMachine_Task(&communicationMachine);
@@ -144,7 +146,9 @@ void communicationMachine_StateEnter_ResetEsp(SM_StateMachine *self)
 {
 	writeLineDisplay("resetEsp");
 	sercom_transmitStr(serial, "AT+RST\r\n");
+#ifdef DEBUG
 	printf("ESP<<: %s", "AT+RST\r\n");
+#endif
 	millistimer_start(&resetWait);
 }
 
@@ -159,7 +163,9 @@ void communicationMachine_StateEnter_WifiMode(SM_StateMachine *self)
 	writeLineDisplay("wifimode to 3");
 	clearInputBuffer();
 	sercom_transmitStr(serial, "AT+CWMODE=3\r\n");
+#ifdef DEBUG
 	printf("ESP<<: %s", "AT+CWMODE=3\r\n");
+#endif
 	millistimer_start(&resetWait);
 }
 
@@ -176,7 +182,9 @@ void communicationMachine_StateEnter_ConnectWifi(SM_StateMachine *self)
 
 	snprintf(buffer, sizeof(buffer), commandPattern, ssid, pwd);
 	writeLineDisplay(buffer);
+#ifdef DEBUG
 	printf(buffer);
+#endif
 
 	sercom_transmitStr(serial, buffer);
 }
@@ -195,7 +203,9 @@ void communicationMachine_StateEnter_ConnectSocket(SM_StateMachine *self)
 
 	snprintf(buffer, sizeof(buffer), commandPattern, protocol, server, port);
 	writeLineDisplay(buffer);
+#ifdef DEBUG
 	printf(buffer);
+#endif
 
 	sercom_transmitStr(serial, buffer);
 }
@@ -226,7 +236,9 @@ void communicationMachine_StateEnter_PrepareSend(SM_StateMachine *self)
 
 	snprintf(buffer, sizeof(buffer), commandPattern, strlen(hello));
 	writeLineDisplay(buffer);
+#ifdef DEBUG
 	printf(buffer);
+#endif
 
 	sercom_transmitStr(serial, buffer);
 }
