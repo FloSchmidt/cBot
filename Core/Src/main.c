@@ -113,8 +113,9 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-
+#ifdef DEBUG
   initialise_monitor_handles();
+#endif
   cBot_init();
   init();
   /* USER CODE END 2 */

@@ -12,7 +12,7 @@ uint32_t resetWait;
 const char ssid[] = "NewTonWars";
 const char pwd[] = "AchPatrickAch";
 const char protocol[] = "TCP";
-const char server[] = "192.168.2.101";
+const char server[] = "192.168.2.102";
 const char port[] = "4321";
 const char hello[] = "Hello World!";
 int networkConnected = 0;
