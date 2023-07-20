@@ -1,10 +1,10 @@
 #include <Arduino.h>
 #include <ESP_AT_Lib.h>
-#include <WS2812B.h>
-#include <U8g2lib.h>
+// #include <WS2812B.h>
+// #include <U8g2lib.h>
 #include <AccelStepper.h>
 
-#define EspSerial   Serial
+HardwareSerial EspSerial(PB7, PB6);
 
 #define SSID        "Obi LAN Kenobi"
 #define PASSWORD    "IHaveTheHighGround"
@@ -19,13 +19,13 @@ ESP8266 wifi(&EspSerial);
 // Your board <-> ESP_AT baud rate:
 #define ESP_AT_BAUD       115200
 
-WS2812B strip = WS2812B(NUM_LEDS); // uses SPI1
+// WS2812B strip = WS2812B(NUM_LEDS); // uses SPI1
 
-U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0);
+// U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0);
 
 const int stepsPerRevolution = 2048; // maybe x2 when using half-steps
-AccelStepper motorLeft(AccelStepper::FULL4WIRE, 0, 1, 2, 3);
-AccelStepper motorRight(AccelStepper::FULL4WIRE, 4, 5, 6, 7);
+AccelStepper motorRight(AccelStepper::FULL4WIRE, PA1, PA3, PA0, PA2);
+AccelStepper motorLeft(AccelStepper::FULL4WIRE, PA4, PA6, PA5, PA7);
 
 const float WHEEL_RADIUS = 0.0197; // unit: m
 const float WHEEL_BASE = 0.0945; // unit: m
@@ -38,8 +38,6 @@ float distanceToSteps(float distance) {
 
 void driveStraight(float distance) {
   float steps = distanceToSteps(distance);
-  motorLeft.setAcceleration(distanceToSteps(0.1)); // does this makes sense?
-  motorRight.setAcceleration(distanceToSteps(0.1)); // does this makes sense?
   motorLeft.move(steps);
   motorRight.move(steps);
 }
@@ -48,15 +46,17 @@ bool isMoving() {
   return motorLeft.isRunning() && motorRight.isRunning();
 }
 
-void setup(void)
+void setup()
 {
-  strip.begin();
-  strip.show();
+  // strip.begin();
+  // strip.show();
 
-  u8g2.begin();
-
-  motorLeft.setMaxSpeed(rpmMax * stepsPerRevolution);
-  motorRight.setMaxSpeed(rpmMax * stepsPerRevolution);
+  motorLeft.setMaxSpeed(stepsPerRevolution);
+  motorRight.setMaxSpeed(stepsPerRevolution);
+  motorLeft.setAcceleration(distanceToSteps(0.01)); // does this makes sense?
+  motorRight.setAcceleration(distanceToSteps(0.01)); // does this makes sense?
+  motorLeft.setSpeed(20);
+  motorRight.setSpeed(20);
 
   // initialize serial for ESP module
   EspSerial.begin(ESP_AT_BAUD);
@@ -86,6 +86,7 @@ void setup(void)
   }
 
   wifi.releaseTCP(mux_id);
+  driveStraight(0.1);
 }
 
 void loop()
