@@ -1,15 +1,16 @@
 #include <Arduino.h>
 #include <ESP_AT_Lib.h>
+// #include <FastLED.h>
 // #include <WS2812B.h>
 // #include <U8g2lib.h>
 #include <AccelStepper.h>
 
 HardwareSerial EspSerial(PB7, PB6);
 
-#define SSID        "Obi LAN Kenobi"
-#define PASSWORD    "IHaveTheHighGround"
+#define SSID        "NewTonWars"
+#define PASSWORD    "AchPatrickAch"
 
-#define HOST_NAME   "10.10.42.193"
+#define HOST_NAME   "192.168.2.105"
 #define HOST_PORT   (8000)
 
 #define NUM_LEDS    10
