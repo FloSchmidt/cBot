@@ -2,15 +2,16 @@
 #include <ESP_AT_Lib.h>
 // #include <FastLED.h>
 // #include <WS2812B.h>
-// #include <U8g2lib.h>
+#include <Wire.h>
+#include <U8g2lib.h>
 #include <AccelStepper.h>
 
 HardwareSerial EspSerial(PB7, PB6);
 
-#define SSID        "NewTonWars"
-#define PASSWORD    "AchPatrickAch"
+#define SSID        "Obi LAN Kenobi"
+#define PASSWORD    "IHaveTheHighGround"
 
-#define HOST_NAME   "192.168.2.105"
+#define HOST_NAME   "10.10.42.193"
 #define HOST_PORT   (8000)
 
 #define NUM_LEDS    10
@@ -22,7 +23,7 @@ ESP8266 wifi(&EspSerial);
 
 // WS2812B strip = WS2812B(NUM_LEDS); // uses SPI1
 
-// U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0);
+static U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0);
 
 const int stepsPerRevolution = 2048; // maybe x2 when using half-steps
 AccelStepper motorRight(AccelStepper::FULL4WIRE, PA1, PA3, PA0, PA2);
@@ -47,8 +48,7 @@ bool isMoving() {
   return motorLeft.isRunning() && motorRight.isRunning();
 }
 
-void setup()
-{
+void setup() {
   // strip.begin();
   // strip.show();
 
@@ -87,11 +87,21 @@ void setup()
   }
 
   wifi.releaseTCP(mux_id);
+
+  // set the hw i2c pins for u8g2 to PB8 and PB9, because the default is PB6 and PB7
+  Wire.setSDA(PB9);
+  Wire.setSCL(PB8);
+  u8g2.begin();
+
+  u8g2.clearBuffer();                   // clear the internal memory
+  u8g2.setFont(u8g2_font_ncenB08_tr);   // choose a suitable font
+  u8g2.drawStr(0, 16, "Hello World!");  // write something to the internal memory
+  u8g2.sendBuffer();                    // transfer internal memory to the display
+
   driveStraight(0.1);
 }
 
-void loop()
-{
+void loop() {
   motorLeft.run();
   motorRight.run();
 }
