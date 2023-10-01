@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <ESP_AT_Lib.h>
-// #include <FastLED.h>
-// #include <WS2812B.h>
+#include <FastLED.h>
 #include <Wire.h>
 #include <U8g2lib.h>
 #include <AccelStepper.h>
@@ -14,14 +13,18 @@ HardwareSerial EspSerial(PB7, PB6);
 #define HOST_NAME   "10.10.42.193"
 #define HOST_PORT   (8000)
 
-#define NUM_LEDS    10
-
 ESP8266 wifi(&EspSerial);
 
 // Your board <-> ESP_AT baud rate:
 #define ESP_AT_BAUD       115200
 
-// WS2812B strip = WS2812B(NUM_LEDS); // uses SPI1
+#define NUM_LEDS 10
+#define DATA_PIN PA15
+
+// manually define Pin mapping for Pin A15
+_FL_DEFPIN(PA15, 15, A);
+
+CRGB leds[NUM_LEDS];
 
 static U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0);
 
@@ -49,8 +52,7 @@ bool isMoving() {
 }
 
 void setup() {
-  // strip.begin();
-  // strip.show();
+  FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);
 
   motorLeft.setMaxSpeed(stepsPerRevolution);
   motorRight.setMaxSpeed(stepsPerRevolution);
@@ -102,6 +104,21 @@ void setup() {
 }
 
 void loop() {
+   // Move a single white led 
+   for(int whiteLed = 0; whiteLed < NUM_LEDS; whiteLed = whiteLed + 1) {
+      // Turn our current led on to white, then show the leds
+      leds[whiteLed] = CRGB::White;
+
+      // Show the leds (only one of which is set to white, from above)
+      FastLED.show();
+
+      // Wait a little bit
+      delay(100);
+
+      // Turn our current led back to black for the next loop around
+      leds[whiteLed] = CRGB::Black;
+   }
+
   motorLeft.run();
   motorRight.run();
 }
