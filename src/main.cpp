@@ -20,10 +20,8 @@ ESP8266 wifi(&EspSerial);
 
 #define NUM_LEDS 10
 #define DATA_PIN PA15
-
 // manually define Pin mapping for Pin A15
 _FL_DEFPIN(PA15, 15, A);
-
 CRGB leds[NUM_LEDS];
 
 static U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0);
@@ -52,6 +50,9 @@ bool isMoving() {
 }
 
 void setup() {
+  pinMode(PB0, INPUT);
+  pinMode(PB1, INPUT);
+
   FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);
 
   motorLeft.setMaxSpeed(stepsPerRevolution);
@@ -94,30 +95,14 @@ void setup() {
   Wire.setSDA(PB9);
   Wire.setSCL(PB8);
   u8g2.begin();
-
-  u8g2.clearBuffer();                   // clear the internal memory
-  u8g2.setFont(u8g2_font_ncenB08_tr);   // choose a suitable font
-  u8g2.drawStr(0, 16, "Hello World!");  // write something to the internal memory
-  u8g2.sendBuffer();                    // transfer internal memory to the display
+  u8g2.clearBuffer();
 
   driveStraight(0.1);
 }
 
 void loop() {
-   // Move a single white led 
-   for(int whiteLed = 0; whiteLed < NUM_LEDS; whiteLed = whiteLed + 1) {
-      // Turn our current led on to white, then show the leds
-      leds[whiteLed] = CRGB::White;
-
-      // Show the leds (only one of which is set to white, from above)
-      FastLED.show();
-
-      // Wait a little bit
-      delay(100);
-
-      // Turn our current led back to black for the next loop around
-      leds[whiteLed] = CRGB::Black;
-   }
+  int left = analogRead(PB0);
+  int right = analogRead(PB1);
 
   motorLeft.run();
   motorRight.run();
